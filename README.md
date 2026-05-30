@@ -56,23 +56,23 @@ Użytkownik → Twoja aplikacja → wysyła token → aplikacja weryfikuje → d
 
 ### Jak Keycloak pasuje do Twojego projektu?
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        TWÓJ PROJEKT                         │
-│                                                             │
-│  ┌──────────────┐      JWT token      ┌──────────────────┐  │
-│  │   Frontend   │ ──────────────────► │  Spring Boot API  │  │
-│  │ (React/Vue   │                     │  (ten template)   │  │
-│  │  /Angular)   │ ◄────────────────── │                  │  │
-│  └──────┬───────┘    odpowiedź JSON   └──────────────────┘  │
-│         │                                                   │
-│         │ login/logout                                      │
-│         ▼                                                   │
-│  ┌──────────────┐                                           │
-│  │   Keycloak   │  ← osobny serwer (Docker lub chmura)     │
-│  │  (auth serwer)│                                          │
-│  └──────────────┘                                           │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    U(["👤 Użytkownik"])
+
+    subgraph Projekt["Twój projekt"]
+        FE["Frontend\n(React / Vue / Angular)"]
+        API["Spring Boot API\n(ten template)"]
+    end
+
+    KC["🔐 Keycloak\n(osobny serwer — Docker lub chmura)"]
+
+    U -->|"otwiera aplikację"| FE
+    FE -->|"1. przekierowanie do logowania"| KC
+    KC -->|"2. JWT Access Token"| FE
+    FE -->|"3. Bearer token w nagłówku"| API
+    API -->|"4. odpowiedź JSON"| FE
+    API -. "weryfikuje token\n(lokalnie, bez odpytywania Keycloak)" .-> KC
 ```
 
 Keycloak stoi z boku — nie jest częścią Twojej aplikacji. Możesz go uruchomić lokalnie (Docker), na VPS, albo użyć chmurowej wersji zarządzanej.
