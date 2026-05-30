@@ -1,0 +1,15 @@
+# Test configuration — overrides main application.yml
+# Uses a mock JWKS URI so no real Keycloak is needed during tests.
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://example.com/.well-known/jwks.json  # overridden by MockMvc JWT support
+
+app:
+  keycloak:
+    server-url: http://localhost:8180
+    realm: test-realm
+    client-id: test-client
+    client-secret: test-secret

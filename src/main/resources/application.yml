@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: keycloak-template
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Keycloak publishes its public key at this URL — Spring fetches it automatically
+          issuer-uri: ${KEYCLOAK_SERVER_URL}/realms/${KEYCLOAK_REALM}
+
+# Custom properties — read by KeycloakJwtConverter and AuthController
+app:
+  keycloak:
+    server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8180}
+    realm: ${KEYCLOAK_REALM:myrealm}
+    client-id: ${KEYCLOAK_CLIENT_ID:myclient}
+    client-secret: ${KEYCLOAK_CLIENT_SECRET:change-me}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    org.springframework.security: DEBUG   # set to INFO in production
+    com.example.keycloaktemplate: DEBUG
