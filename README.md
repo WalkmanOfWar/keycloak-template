@@ -190,7 +190,7 @@ Powinieneś zobaczyć dane swojego użytkownika. Gratulacje — integracja dzia�
 
 | Technologia | Wersja |
 |---|---|
-| Java | 21 |
+| Java | 21+ (testowane na 25) |
 | Spring Boot | 3.3.5 |
 | Spring Security | 6.x |
 | Keycloak | 25.x |

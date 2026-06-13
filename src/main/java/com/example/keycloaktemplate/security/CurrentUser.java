@@ -10,8 +10,8 @@ import java.util.List;
 @Builder
 public class CurrentUser {
 
-    private final String id;           // Keycloak subject (UUID)
-    private final String username;     // preferred_username
+    private final String id;
+    private final String username;
     private final String email;
     private final String firstName;
     private final String lastName;
@@ -24,7 +24,7 @@ public class CurrentUser {
             .email(jwt.getClaimAsString("email"))
             .firstName(jwt.getClaimAsString("given_name"))
             .lastName(jwt.getClaimAsString("family_name"))
-            .roles(List.of()) // roles are in SecurityContext — see @PreAuthorize
+            .roles(List.of())
             .build();
     }
 }
