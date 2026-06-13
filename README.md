@@ -305,15 +305,107 @@ src/
 
 ---
 
-## Dodawanie nowych chronionych endpointów
+## Jak działają role
+
+Keycloak wpisuje role użytkownika do tokena JWT przy jego wystawieniu:
+
+```json
+"realm_access": {
+  "roles": ["admin", "user", "offline_access"]
+}
+```
+
+Spring Boot **nie pyta Keycloaka przy każdym requeście** — role są już w tokenie. `KeycloakJwtConverter` wyciąga je i zamienia na `ROLE_admin`, `ROLE_user` itd. Dzięki temu `@PreAuthorize` działa lokalnie, bez żadnych requestów sieciowych.
+
+Chcesz sprawdzić co siedzi w Twoim tokenie? Wklej go na [jwt.io](https://jwt.io).
+
+---
+
+## Ochrona endpointów przez role
 
 ```java
 @GetMapping("/api/orders")
-@PreAuthorize("hasRole('user')")      // wymaga roli "user" w Keycloak
+@PreAuthorize("hasRole('user')")
 public ResponseEntity<List<Order>> getOrders(@AuthenticationPrincipal Jwt jwt) {
-    String userId = jwt.getSubject(); // Keycloak UUID użytkownika
+    String userId = jwt.getSubject(); // UUID użytkownika z Keycloaka
     // ...
 }
+
+// Więcej opcji:
+@PreAuthorize("hasRole('admin')")                        // jedna rola
+@PreAuthorize("hasAnyRole('admin', 'moderator')")        // jedna z wielu
+@PreAuthorize("hasRole('admin') and hasRole('manager')") // obie naraz
+```
+
+Użytkownik bez wymaganej roli dostanie `403 Forbidden`.
+
+---
+
+## Zarządzanie użytkownikami przez API (Keycloak Admin REST API)
+
+Keycloak udostępnia REST API do zarządzania użytkownikami — możesz tworzyć konta programistycznie, bez wchodzenia w panel admina.
+
+### Pobierz token admina
+
+```bash
+ADMIN_TOKEN=$(curl -s -X POST http://localhost:8180/realms/master/protocol/openid-connect/token \
+  -d "grant_type=password&client_id=admin-cli&username=admin&password=admin" | jq -r .access_token)
+```
+
+**Windows (PowerShell):**
+```powershell
+$adminToken = (Invoke-RestMethod -Method Post -Uri http://localhost:8180/realms/master/protocol/openid-connect/token -ContentType "application/x-www-form-urlencoded" -Body "grant_type=password&client_id=admin-cli&username=admin&password=admin").access_token
+```
+
+### Utwórz użytkownika przez API
+
+```bash
+curl -s -X POST http://localhost:8180/admin/realms/myrealm/users \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "marek",
+    "email": "marek@test.pl",
+    "firstName": "Marek",
+    "lastName": "Nowak",
+    "enabled": true,
+    "emailVerified": true,
+    "credentials": [{"type":"password","value":"haslo123","temporary":false}]
+  }'
+```
+
+**Windows (PowerShell):**
+```powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:8180/admin/realms/myrealm/users `
+  -Headers @{ Authorization = "Bearer $adminToken" } `
+  -ContentType "application/json" `
+  -Body '{"username":"marek","email":"marek@test.pl","firstName":"Marek","lastName":"Nowak","enabled":true,"emailVerified":true,"credentials":[{"type":"password","value":"haslo123","temporary":false}]}'
+```
+
+> **Ważne:** ustaw `"emailVerified": true` — bez tego konto jest "not fully set up" i logowanie nie zadziała.
+
+### Zaloguj użytkownika (pobierz token)
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{"username":"marek","password":"haslo123"}' | jq -r .access_token)
+```
+
+**Windows (PowerShell):**
+```powershell
+$token = (Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/auth/token -ContentType "application/json" -Body '{"username":"marek","password":"haslo123"}').access_token
+```
+
+### Wywołaj chroniony endpoint
+
+```bash
+curl http://localhost:8080/api/user/me -H "Authorization: Bearer $TOKEN"
+```
+
+**Windows (PowerShell):**
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/user/me -Headers @{ Authorization = "Bearer $token" }
 ```
 
 ---
