@@ -157,17 +157,26 @@ KEYCLOAK_CLIENT_SECRET=<secret z kroku 3>
 
 Pobierz token:
 
+**Windows (PowerShell):**
+```powershell
+$token = (Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/auth/token -ContentType "application/json" -Body '{"username":"jan","password":"tajne"}').access_token
+```
+
+**Linux / macOS / Git Bash:**
 ```bash
-curl -s -X POST http://localhost:8080/api/auth/token \
-  -H "Content-Type: application/json" \
-  -d '{"username":"jan","password":"tajne"}' | jq .
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/token -H "Content-Type: application/json" -d '{"username":"jan","password":"tajne"}' | jq -r .access_token)
 ```
 
 Wywołaj chroniony endpoint z tokenem:
 
+**Windows (PowerShell):**
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/user/me -Headers @{ Authorization = "Bearer $token" }
+```
+
+**Linux / macOS / Git Bash:**
 ```bash
-curl http://localhost:8080/api/user/me \
-  -H "Authorization: Bearer <access_token z poprzedniego kroku>"
+curl http://localhost:8080/api/user/me -H "Authorization: Bearer $TOKEN"
 ```
 
 Powinieneś zobaczyć dane swojego użytkownika. Gratulacje — integracja działa!
@@ -255,19 +264,18 @@ KEYCLOAK_CLIENT_SECRET=<twój-secret>
 
 ---
 
-## Jak pobrać token (curl)
+## Jak pobrać token
 
-```bash
-curl -s -X POST http://localhost:8080/api/auth/token \
-  -H "Content-Type: application/json" \
-  -d '{"username":"jan","password":"tajne"}' | jq .
+**Windows (PowerShell):**
+```powershell
+$token = (Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/auth/token -ContentType "application/json" -Body '{"username":"jan","password":"tajne"}').access_token
+Invoke-RestMethod -Uri http://localhost:8080/api/user/me -Headers @{ Authorization = "Bearer $token" }
 ```
 
-Użyj `access_token` z odpowiedzi jako Bearer token:
-
+**Linux / macOS / Git Bash:**
 ```bash
-curl http://localhost:8080/api/user/me \
-  -H "Authorization: Bearer <access_token>"
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/token -H "Content-Type: application/json" -d '{"username":"jan","password":"tajne"}' | jq -r .access_token)
+curl http://localhost:8080/api/user/me -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
