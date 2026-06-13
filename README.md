@@ -201,55 +201,10 @@ Powinieneś zobaczyć dane swojego użytkownika. Gratulacje — integracja dzia�
 
 | Technologia | Wersja |
 |---|---|
-| Java | 21+ (testowane na 25) |
+| Java | 21 |
 | Spring Boot | 3.3.5 |
 | Spring Security | 6.x |
 | Keycloak | 25.x |
-
----
-
-## Szybki start
-
-### 1. Uruchom Keycloak lokalnie
-
-```bash
-docker compose up -d
-```
-
-Keycloak dostępny pod: `http://localhost:8180`  
-Admin: `admin` / `admin`
-
-### 2. Skonfiguruj Keycloak
-
-W panelu admina (`http://localhost:8180/admin`):
-
-1. **Utwórz Realm** → np. `myrealm`
-2. **Utwórz Client** → `myclient`
-   - Client authentication: **ON** (confidential)
-   - Valid redirect URIs: `http://localhost:8080/*`
-   - Skopiuj **Client Secret** z zakładki *Credentials*
-3. **Utwórz użytkownika** → ustaw hasło w zakładce *Credentials*
-4. (Opcjonalnie) **Utwórz Role** → przypisz do użytkownika
-
-### 3. Skonfiguruj aplikację
-
-```bash
-cp .env.example .env
-# Wypełnij wartości w .env
-```
-
-```env
-KEYCLOAK_SERVER_URL=http://localhost:8180
-KEYCLOAK_REALM=myrealm
-KEYCLOAK_CLIENT_ID=myclient
-KEYCLOAK_CLIENT_SECRET=<twój-secret>
-```
-
-### 4. Uruchom aplikację
-
-```bash
-./mvnw spring-boot:run
-```
 
 ---
 
@@ -263,22 +218,6 @@ KEYCLOAK_CLIENT_SECRET=<twój-secret>
 | POST | `/api/auth/token` | ✗ | Pobierz token (dev only) |
 | POST | `/api/auth/refresh` | ✗ | Odśwież token |
 | POST | `/api/auth/logout` | ✗ | Wyloguj / unieważnij token |
-
----
-
-## Jak pobrać token
-
-**Windows (PowerShell):**
-```powershell
-$token = (Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/auth/token -ContentType "application/json" -Body '{"username":"jan","password":"tajne"}').access_token
-Invoke-RestMethod -Uri http://localhost:8080/api/user/me -Headers @{ Authorization = "Bearer $token" }
-```
-
-**Linux / macOS / Git Bash:**
-```bash
-TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/token -H "Content-Type: application/json" -d '{"username":"jan","password":"tajne"}' | jq -r .access_token)
-curl http://localhost:8080/api/user/me -H "Authorization: Bearer $TOKEN"
-```
 
 ---
 
