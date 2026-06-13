@@ -121,9 +121,10 @@ Realm = izolowane środowisko dla Twojej aplikacji.
 
 1. W menu: **Users** → **Create new user**
 2. Wpisz **Username**, np. `jan`
-3. Kliknij **Create**
-4. Przejdź do zakładki **Credentials** → **Set password**
-5. Wpisz hasło, wyłącz opcję **Temporary** → **Save**
+3. Wpisz **Email**, np. `jan@test.pl` ← **wymagane!** (bez emaila konto jest "not fully set up" i logowanie nie działa)
+4. Kliknij **Create**
+5. Przejdź do zakładki **Credentials** → **Set password**
+6. Wpisz hasło, wyłącz opcję **Temporary** → **Save password**
 
 ---
 
@@ -192,6 +193,7 @@ Powinieneś zobaczyć dane swojego użytkownika. Gratulacje — integracja dzia�
 | `Connection refused` do Keycloak | Keycloak nie działa | `docker compose up -d` i poczekaj ~30s |
 | Token się nie weryfikuje | Zły `issuer-uri` w `application.yml` | Sprawdź czy URL i nazwa realmu są identyczne |
 | `Client secret` nie pasuje | Zły secret w `.env` | Skopiuj ponownie z Keycloak → Clients → Credentials |
+| `Account is not fully set up` | Użytkownik nie ma ustawionego emaila | Users → edytuj użytkownika → wpisz Email → Save |
 
 ---
 

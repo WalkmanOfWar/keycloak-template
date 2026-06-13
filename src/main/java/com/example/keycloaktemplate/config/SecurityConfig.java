@@ -31,6 +31,7 @@ public class SecurityConfig {
                 // public endpoints
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
                 // everything else requires a valid JWT
                 .anyRequest().authenticated()
             )
