@@ -15,15 +15,15 @@ Wyobraź sobie, że budujesz aplikację webową. Użytkownicy muszą się logowa
 - blokować konta po zbyt wielu błędnych próbach logowania
 - może dodać logowanie przez Google / GitHub?
 - może dwuskładnikowe uwierzytelnianie (2FA)?
-- a jak masz kilka aplikacji — każda ma osobny system logowania?
+- a jak masz kilka aplikacji - każda ma osobny system logowania?
 
 To setki godzin pracy i dziesiątki sposobów, żeby popełnić błąd bezpieczeństwa.
 
-**Keycloak rozwiązuje to wszystko out-of-the-box.** To gotowy serwer uwierzytelniania (tzw. Identity Provider), który przejmuję cały ten ciężar. Twoja aplikacja pyta Keycloak „czy ten użytkownik jest zalogowany i jakie ma prawa?" — i tyle.
+**Keycloak rozwiązuje to wszystko out-of-the-box.** To gotowy serwer uwierzytelniania (tzw. Identity Provider), który przejmuję cały ten ciężar. Twoja aplikacja pyta Keycloak „czy ten użytkownik jest zalogowany i jakie ma prawa?" - i tyle.
 
 ---
 
-### Jak to działa — krok po kroku
+### Jak to działa - krok po kroku
 
 ```
 Użytkownik → Twoja aplikacja → "Zaloguj się" → Keycloak (strona logowania)
@@ -35,22 +35,22 @@ Użytkownik → Twoja aplikacja → "Zaloguj się" → Keycloak (strona logowani
 Użytkownik → Twoja aplikacja → wysyła token → aplikacja weryfikuje → dostęp
 ```
 
-**Token JWT** to zaszyfrowany ciąg znaków, który zawiera informacje o użytkowniku (kto to jest, jakie ma role). Twoja aplikacja Spring Boot nie musi pytać Keycloak przy każdym żądaniu — sprawdza token lokalnie, kryptograficznie.
+**Token JWT** to zaszyfrowany ciąg znaków, który zawiera informacje o użytkowniku (kto to jest, jakie ma role). Twoja aplikacja Spring Boot nie musi pytać Keycloak przy każdym żądaniu - sprawdza token lokalnie, kryptograficznie.
 
 ---
 
-### Słowniczek — kluczowe pojęcia
+### Słowniczek - kluczowe pojęcia
 
 | Pojęcie | Co to znaczy po ludzku |
 |---|---|
 | **Realm** | Izolowane środowisko / „tenant". Jak osobna baza użytkowników. Jeden Keycloak może mieć wiele Realmów (np. jeden dla klientów, jeden dla pracowników). |
 | **Client** | Twoja aplikacja zarejestrowana w Keycloak. Każda aplikacja to osobny Client. Keycloak musi wiedzieć, kto pyta o tokeny. |
-| **Client Secret** | Hasło Twojej aplikacji — dowód, że to naprawdę ona pyta o token, a nie ktoś obcy. Trzymaj w tajemnicy (`.env`). |
+| **Client Secret** | Hasło Twojej aplikacji - dowód, że to naprawdę ona pyta o token, a nie ktoś obcy. Trzymaj w tajemnicy (`.env`). |
 | **Access Token** | Krótkożyjący token (domyślnie 5 min) dołączany do każdego żądania HTTP jako `Bearer`. Zawiera dane użytkownika i jego role. |
 | **Refresh Token** | Długożyjący token (domyślnie 30 min) służący do pobierania nowego Access Tokena bez ponownego logowania. |
 | **Role** | Uprawnienia użytkownika, np. `admin`, `user`, `moderator`. Twoja aplikacja sprawdza role i decyduje, co użytkownik może zobaczyć. |
-| **JWT** | Format tokena — to po prostu JSON zakodowany w Base64 i podpisany kryptograficznie. Możesz podejrzeć zawartość na [jwt.io](https://jwt.io). |
-| **OIDC / OAuth2** | Standardy protokołów, na których opiera się Keycloak. Spring Security obsługuje je natywnie — nie musisz ich rozumieć w szczegółach. |
+| **JWT** | Format tokena - to po prostu JSON zakodowany w Base64 i podpisany kryptograficznie. Możesz podejrzeć zawartość na [jwt.io](https://jwt.io). |
+| **OIDC / OAuth2** | Standardy protokołów, na których opiera się Keycloak. Spring Security obsługuje je natywnie - nie musisz ich rozumieć w szczegółach. |
 
 ---
 
@@ -65,7 +65,7 @@ flowchart TD
         API["Spring Boot API\n(ten template)"]
     end
 
-    KC["🔐 Keycloak\n(osobny serwer — Docker lub chmura)"]
+    KC["🔐 Keycloak\n(osobny serwer - Docker lub chmura)"]
 
     U -->|"otwiera aplikację"| FE
     FE -->|"1. przekierowanie do logowania"| KC
@@ -75,13 +75,13 @@ flowchart TD
     API -. "weryfikuje token\n(lokalnie, bez odpytywania Keycloak)" .-> KC
 ```
 
-Keycloak stoi z boku — nie jest częścią Twojej aplikacji. Możesz go uruchomić lokalnie (Docker), na VPS, albo użyć chmurowej wersji zarządzanej.
+Keycloak stoi z boku - nie jest częścią Twojej aplikacji. Możesz go uruchomić lokalnie (Docker), na VPS, albo użyć chmurowej wersji zarządzanej.
 
 ---
 
-### Konfiguracja Keycloak — szczegółowy przewodnik (krok po kroku)
+### Konfiguracja Keycloak - szczegółowy przewodnik (krok po kroku)
 
-#### Krok 1 — Uruchom Keycloak
+#### Krok 1 - Uruchom Keycloak
 
 ```bash
 docker compose up -d
@@ -91,7 +91,7 @@ Otwórz `http://localhost:8180/admin` i zaloguj się: `admin` / `admin`.
 
 ---
 
-#### Krok 2 — Utwórz Realm
+#### Krok 2 - Utwórz Realm
 
 Realm = izolowane środowisko dla Twojej aplikacji.
 
@@ -100,24 +100,24 @@ Realm = izolowane środowisko dla Twojej aplikacji.
 3. Wpisz nazwę, np. `myrealm`
 4. Kliknij **Create**
 
-> Realm `master` jest dla adminów Keycloak — **nie używaj go** dla swojej aplikacji.
+> Realm `master` jest dla adminów Keycloak - **nie używaj go** dla swojej aplikacji.
 
 ---
 
-#### Krok 3 — Utwórz Client (Twoja aplikacja)
+#### Krok 3 - Utwórz Client (Twoja aplikacja)
 
 1. W menu po lewej: **Clients** → **Create client**
 2. Wypełnij:
    - **Client ID**: `myclient` (dowolna nazwa, zapamiętaj ją)
    - **Client type**: `OpenID Connect`
 3. Kliknij **Next**
-4. Włącz **Client authentication** (przełącznik na ON) — to tryb confidential (z secret)
+4. Włącz **Client authentication** (przełącznik na ON) - to tryb confidential (z secret)
 5. Kliknij **Next**, potem **Save**
-6. Przejdź do zakładki **Credentials** → skopiuj **Client secret** — to Twój `KEYCLOAK_CLIENT_SECRET`
+6. Przejdź do zakładki **Credentials** → skopiuj **Client secret** - to Twój `KEYCLOAK_CLIENT_SECRET`
 
 ---
 
-#### Krok 4 — Utwórz użytkownika
+#### Krok 4 - Utwórz użytkownika
 
 1. W menu: **Users** → **Create new user**
 2. Wpisz **Username**, np. `jan`
@@ -128,7 +128,7 @@ Realm = izolowane środowisko dla Twojej aplikacji.
 
 ---
 
-#### Krok 5 — (Opcjonalnie) Utwórz role i przypisz do użytkownika
+#### Krok 5 - (Opcjonalnie) Utwórz role i przypisz do użytkownika
 
 Role pozwalają ograniczać dostęp do części aplikacji (`@PreAuthorize("hasRole('admin')")`).
 
@@ -139,7 +139,7 @@ Role pozwalają ograniczać dostęp do części aplikacji (`@PreAuthorize("hasRo
 
 ---
 
-#### Krok 6 — Wypełnij `.env` i uruchom aplikację
+#### Krok 6 - Wypełnij `.env` i uruchom aplikację
 
 ```env
 KEYCLOAK_SERVER_URL=http://localhost:8180
@@ -154,7 +154,7 @@ KEYCLOAK_CLIENT_SECRET=<secret z kroku 3>
 
 ---
 
-#### Krok 7 — Przetestuj działanie
+#### Krok 7 - Przetestuj działanie
 
 Pobierz token:
 
@@ -180,7 +180,7 @@ Invoke-RestMethod -Uri http://localhost:8080/api/user/me -Headers @{ Authorizati
 curl http://localhost:8080/api/user/me -H "Authorization: Bearer $TOKEN"
 ```
 
-Powinieneś zobaczyć dane swojego użytkownika. Gratulacje — integracja działa!
+Powinieneś zobaczyć dane swojego użytkownika. Gratulacje - integracja działa!
 
 ---
 
@@ -254,7 +254,7 @@ Keycloak wpisuje role użytkownika do tokena JWT przy jego wystawieniu:
 }
 ```
 
-Spring Boot **nie pyta Keycloaka przy każdym requeście** — role są już w tokenie. `KeycloakJwtConverter` wyciąga je i zamienia na `ROLE_admin`, `ROLE_user` itd. Dzięki temu `@PreAuthorize` działa lokalnie, bez żadnych requestów sieciowych.
+Spring Boot **nie pyta Keycloaka przy każdym requeście** - role są już w tokenie. `KeycloakJwtConverter` wyciąga je i zamienia na `ROLE_admin`, `ROLE_user` itd. Dzięki temu `@PreAuthorize` działa lokalnie, bez żadnych requestów sieciowych.
 
 Chcesz sprawdzić co siedzi w Twoim tokenie? Wklej go na [jwt.io](https://jwt.io).
 
@@ -282,7 +282,7 @@ Użytkownik bez wymaganej roli dostanie `403 Forbidden`.
 
 ## Zarządzanie użytkownikami przez API (Keycloak Admin REST API)
 
-Keycloak udostępnia REST API do zarządzania użytkownikami — możesz tworzyć konta programistycznie, bez wchodzenia w panel admina.
+Keycloak udostępnia REST API do zarządzania użytkownikami - możesz tworzyć konta programistycznie, bez wchodzenia w panel admina.
 
 ### Pobierz token admina
 
@@ -321,7 +321,7 @@ Invoke-RestMethod -Method Post -Uri http://localhost:8180/admin/realms/myrealm/u
   -Body '{"username":"marek","email":"marek@test.pl","firstName":"Marek","lastName":"Nowak","enabled":true,"emailVerified":true,"credentials":[{"type":"password","value":"haslo123","temporary":false}]}'
 ```
 
-> **Ważne:** ustaw `"emailVerified": true` — bez tego konto jest "not fully set up" i logowanie nie zadziała.
+> **Ważne:** ustaw `"emailVerified": true` - bez tego konto jest "not fully set up" i logowanie nie zadziała.
 
 ### Zaloguj użytkownika (pobierz token)
 
@@ -355,7 +355,7 @@ Invoke-RestMethod -Uri http://localhost:8080/api/user/me -Headers @{ Authorizati
 ./mvnw test
 ```
 
-Testy używają `MockMvc` z `spring-security-test` — **nie wymagają działającego Keycloak**.
+Testy używają `MockMvc` z `spring-security-test` - **nie wymagają działającego Keycloak**.
 
 ---
 
